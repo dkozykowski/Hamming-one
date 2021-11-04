@@ -1,11 +1,22 @@
+// Hamming One
+// Architecture: GPU
+// Complexity: L * M^2
+//
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
 using namespace std;
 
 #define BITS_IN_INT 31
+#define ERR(source) (fprintf(stderr,"%s:%d\n",__FILE__,__LINE__),\
+                     perror(source),\
+                     exit(EXIT_FAILURE))
 
-#define INPUT_FILE_NAME "input.txt"
+void usage(char *name){
+    fprintf(stderr,"USAGE: %s <input_file_path>\n",name);
+    exit(EXIT_FAILURE);
+}
 
 int _ceil(double variable) {
     int new_variable = (int)variable;
@@ -13,16 +24,16 @@ int _ceil(double variable) {
     else return new_variable + 1;
 }
 
-void read_input(int& L, int& M, int*& h_input) {
+void read_input(char* file_path, int& L, int& M, int*& h_input) {
     ifstream fileStream;    
-    fileStream.open(INPUT_FILE_NAME, ios::in);
-    if (!fileStream.is_open()) exit(-1);
+    fileStream.open(file_path, ios::in);
+    if (!fileStream.is_open()) ERR("ifstream.open");
     fileStream >> L >> M;
 
     int newL = _ceil((double)L / BITS_IN_INT);
 
     h_input = new int[newL * M];
-    if (h_input == NULL) exit(-1);
+    if (h_input == NULL) ERR("operator new");
     memset(h_input, 0, sizeof(int) * newL * M);
 
     int current_bit;
@@ -55,10 +66,11 @@ __global__ void find_hamming_one(int* d_input, bool* d_output, int L, int M) {
 }
 
 int main(int argc, char ** argv) {
+    if (argc != 2) usage(argv[0]);
     int L, M;
     int *h_input, *d_input;
     bool *h_output, *d_output;
-    read_input(L, M, h_input);
+    read_input(argv[1], L, M, h_input);
 
     cudaMalloc(&d_input, L * M * sizeof(int));
     cudaMemcpy(d_input, h_input, L * M * sizeof(int), cudaMemcpyHostToDevice);
@@ -67,7 +79,7 @@ int main(int argc, char ** argv) {
     cudaMalloc(&d_output, M * M);
     cudaMemset(d_output, 0, M * M);
     h_output = new bool[M * M];
-    if (h_output == NULL) return -1;
+    if (h_output == NULL) ERR("operator new");
 
     int threads, blocks;
     threads = 1024;
@@ -87,5 +99,5 @@ int main(int argc, char ** argv) {
     cudaFree(d_input);
     cudaFree(d_output);
     delete[] h_output;
-    return 0;
+    return EXIT_SUCCESS;
 }

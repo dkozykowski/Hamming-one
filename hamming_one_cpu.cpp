@@ -1,17 +1,29 @@
+// Hamming One
+// Architecture: CPU
+// Complexity: L * M^2
+//
+
 #include <iostream>
 #include <fstream>
 using namespace std;
 
-#define INPUT_FILE_NAME "input.txt"
+#define ERR(source) (fprintf(stderr,"%s:%d\n",__FILE__,__LINE__),\
+                     perror(source),\
+                     exit(EXIT_FAILURE))
 
-void read_input(int& L, int& M, bool*& input) {
+void usage(char *name){
+    fprintf(stderr,"USAGE: %s <input_file_path>\n",name);
+    exit(EXIT_FAILURE);
+}
+
+void read_input(char* file_path, int& L, int& M, bool*& input) {
     ifstream fileStream;    
-    fileStream.open(INPUT_FILE_NAME, ios::in);
-    if (!fileStream.is_open()) exit(-1);
+    fileStream.open(file_path, ios::in);
+    if (!fileStream.is_open()) ERR("ifstream.open");
     fileStream >> L >> M;
 
     input = new bool[L * M];
-    if (input == nullptr) exit(-1);
+    if (input == nullptr) ERR("operator new");
 
     for (int i = 0; i < M; i++) {
         for (int o = 0; o < L; o++) {
@@ -37,10 +49,12 @@ void find_hamming_one(const int& L, const int& M, bool*& input) {
 }
 
 int main(int argc, char ** argv) {
+    if (argc != 2) usage(argv[0]);
     int L, M;
     bool* input;
-    read_input(L, M, input);
+    read_input(argv[1], L, M, input);
     find_hamming_one(L, M, input);
 
-    return 0;
+    delete[] input;
+    return EXIT_SUCCESS;
 }
