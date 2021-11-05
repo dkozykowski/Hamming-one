@@ -37,7 +37,7 @@ void find_hamming_one(const int& L, const int& M, bool*& input) {
     for (int i = 0; i < M; i++) {
         for (int o = i + 1; o < M; o++) { 
             hamming_distance = 0;
-            for (int j = 0; j < L; j++) {
+            for (int j = 0; j < L && hamming_distance <= 1; j++) {
                 if (input[j + o * L] != input[j + i * L]) hamming_distance++;
             }
 

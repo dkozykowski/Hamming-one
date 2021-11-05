@@ -53,8 +53,10 @@ void generate_data(bool * output, const int& L, const int& M) {
         for (int i = 0; i < L; i++) {
             output[i + row2 * L] = output[i + row1 * L];
         }
-        int pos_of_diff = rand() % L;
-        output[pos_of_diff + row2 * L] = !output[pos_of_diff + row1 * L];
+        if (rand() % 5  < 2) {
+            int pos_of_diff = rand() % L;
+            output[pos_of_diff + row2 * L] = !output[pos_of_diff + row1 * L];
+        }
     }
 }
 
@@ -66,7 +68,6 @@ int main(int argc, char ** argv) {
     if (argc > 4 || argc < 2) usage(argv[0]);
     if (argc == 4) M = atoi(argv[3]);
     if (argc >= 3) L = atoi(argv[2]);
-    if (L < MIN_L_VALUE || M < MIN_M_VALUE) usage(argv[0]);
 
     bool* output = new bool[L * M];
     if (output == nullptr) ERR("operator new");

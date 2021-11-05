@@ -48,20 +48,20 @@ void read_input(char* file_path, int& L, int& M, int*& h_input) {
     L = newL;
 }
 
-__global__ void find_hamming_one(int* d_input, bool* d_output, int L, int M) {
+__global__ void find_hamming_one(int* d_input, int L, int M) {
     int index = blockIdx.x * 1024 + threadIdx.x;
     int hamming_distance;
     for (int i = index + 1; i < M; i++) {
         hamming_distance = 0;
 
-        for (int o = 0; o < L; o++) {
+        for (int o = 0; o < L && hamming_distance <= 1; o++) {
             int num = d_input[o + index * L] ^ d_input[o + i * L];
-            while(num != 0) {
+            while(num != 0 && hamming_distance <= 1) {
                 hamming_distance += (num & 1);
                 num >>= 1;
             }
         }
-        d_output[i + index * M] = (hamming_distance == 1);
+        if (hamming_distance == 1) printf("%d %d\n", i, index);
     }
 }
 
@@ -69,35 +69,18 @@ int main(int argc, char ** argv) {
     if (argc != 2) usage(argv[0]);
     int L, M;
     int *h_input, *d_input;
-    bool *h_output, *d_output;
     read_input(argv[1], L, M, h_input);
 
     cudaMalloc(&d_input, L * M * sizeof(int));
     cudaMemcpy(d_input, h_input, L * M * sizeof(int), cudaMemcpyHostToDevice);
     delete[] h_input;
 
-    cudaMalloc(&d_output, M * M);
-    cudaMemset(d_output, 0, M * M);
-    h_output = new bool[M * M];
-    if (h_output == NULL) ERR("operator new");
-
     int threads, blocks;
     threads = 1024;
     blocks = _ceil((double)M / threads);
 
-    find_hamming_one<<<blocks, threads>>>(d_input, d_output, L, M);
-    cudaMemcpy(h_output, d_output, M * M, cudaMemcpyDeviceToHost);
-
-    for (int i = 0; i < M; i++) {
-        for (int o = i + 1; o < M; o++) {
-            if (h_output[o + i * M]) {
-                cout << i << " " << o << "\n";
-            }
-        }
-    }
+    find_hamming_one<<<blocks, threads>>>(d_input, L, M);
 
     cudaFree(d_input);
-    cudaFree(d_output);
-    delete[] h_output;
     return EXIT_SUCCESS;
 }
