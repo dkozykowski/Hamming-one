@@ -1,3 +1,10 @@
+// Creates tests for Hamming One problem
+//
+// In order to maximise amount of comparisions required to 
+// calculate result by brute force solutions, sequences 
+// often differ on the very last positions
+//
+
 #include <iostream>
 #include <fstream>
 using namespace std;

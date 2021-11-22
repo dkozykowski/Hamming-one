@@ -56,9 +56,9 @@ __global__ void find_hamming_one(int* d_input, int L, int M) {
 
         for (int o = 0; o < L && hamming_distance <= 1; o++) {
             int num = d_input[o + index * L] ^ d_input[o + i * L];
-            while(num != 0 && hamming_distance <= 1) {
-                hamming_distance += (num & 1);
-                num >>= 1;
+            if (num != 0) {
+                if ((num & (num - 1)) == 0) hamming_distance++; // difference is a power of 2
+                else hamming_distance += 2; // else
             }
         }
         if (hamming_distance == 1) printf("%d %d\n", i, index);

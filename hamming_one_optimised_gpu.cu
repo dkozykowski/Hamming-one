@@ -1,7 +1,12 @@
 // Hamming One
 // Architecture: GPU
-// Complexity: L * M
+// Complexity: L * MlogM
 //
+// Complexity can be easily lowered to O(L * M) 
+// by using a dictonary that supports insert and 
+// chech_if_consists both in o(1) complexity
+//
+
 #include <iostream>
 #include <fstream>
 #include <cstring>

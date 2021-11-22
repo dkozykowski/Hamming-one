@@ -1,11 +1,23 @@
 // Hamming One
 // Architecture: CPU
-// Complexity: L * M^2
+// Complexity: L * MlogM
 //
+// Complexity can be easily lowered to O(L * M) using 
+// std::unordered_map or any other dictonary that supports 
+// insert and chech_if_consists both in o(1) complexity
+// 
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
+#include <vector>
+#include <map>
 using namespace std;
+
+#define MOD1 100000004917
+#define MOD2 99999981101
+#define P1 29
+#define P2 41
 
 #define ERR(source) (fprintf(stderr,"%s:%d\n",__FILE__,__LINE__),\
                      perror(source),\
@@ -16,45 +28,83 @@ void usage(char *name){
     exit(EXIT_FAILURE);
 }
 
-void read_input(char* file_path, int& L, int& M, bool*& input) {
+void read_input(char* file_path, int& L, int& M, bool*& h_input) {
     ifstream fileStream;    
     fileStream.open(file_path, ios::in);
     if (!fileStream.is_open()) ERR("ifstream.open");
     fileStream >> L >> M;
 
-    input = new bool[L * M];
-    if (input == nullptr) ERR("operator new");
+    h_input = new bool[L * M];
+    if (h_input == nullptr) ERR("operator new");
 
     for (int i = 0; i < M; i++) {
         for (int o = 0; o < L; o++) {
-            fileStream >> input[o + i * L];
+            fileStream >> h_input[o + i * L];
         }
     }
 }
 
-void find_hamming_one(const int& L, const int& M, bool*& input) {
-    int hamming_distance;
-    for (int i = 0; i < M; i++) {
-        for (int o = i + 1; o < M; o++) { 
-            hamming_distance = 0;
-            for (int j = 0; j < L && hamming_distance <= 1; j++) {
-                if (input[j + o * L] != input[j + i * L]) hamming_distance++;
+void calculate_hashes(long long int *d_hashes1, long long int *d_hashes2, bool *d_input, int L, int M) {
+    long long int p1, p2;
+    for (int index = 0; index < M; index++) {
+        p1 = P1;
+        p2 = P2;
+        for (int i = 0; i < L; i++) {
+            d_hashes1[index] = (d_hashes1[index] + p1 * d_input[i + index * L]) % MOD1;
+            d_hashes2[index] = (d_hashes2[index] + p2 * d_input[i + index * L]) % MOD2;
+            p1 = (p1 * P1) % MOD1;
+            p2 = (p2 * P2) % MOD2;
+        }
+    }
+}
+
+void find_hamming_one(long long int *h_hashes1, long long int *h_hashes2, int L, int M) {
+    map<pair<long long int, long long int>, vector<int>> hash_map;
+
+    long long int p1, p2;
+    for (int i = M - 1; i >= 0; i--) {
+        p1 = P1;
+        p2 = P2;
+        for (int j = 0; j < L; j++) {
+            auto pointer = hash_map.find(make_pair((h_hashes1[i] + p1) % MOD1, (h_hashes2[i] + p2) % MOD2));
+            if (pointer != hash_map.end()) {
+                int vector_size = (int)pointer->second.size();
+                for (int o = 0; o < vector_size; o++) {
+                    printf("%d %d\n", i, pointer->second[o]);
+                }
             }
 
-            if (hamming_distance == 1) {
-                cout << i << " " << o << "\n";
+            pointer = hash_map.find(make_pair((h_hashes1[i] - p1 + MOD1) % MOD1, (h_hashes2[i] - p2 + MOD2) % MOD2));
+            if (pointer != hash_map.end()) {     
+                int vector_size = (int)pointer->second.size();
+                for (int o = 0; o < vector_size; o++) {
+                    printf("%d %d\n", i, pointer->second[o]);
+                }
             }
+
+            p1 = (p1 * P1) % MOD1;
+            p2 = (p2 * P2) % MOD2;
         }
+        hash_map[make_pair(h_hashes1[i], h_hashes2[i])].push_back(i);
     }
 }
 
 int main(int argc, char ** argv) {
     if (argc != 2) usage(argv[0]);
     int L, M;
-    bool* input;
-    read_input(argv[1], L, M, input);
-    find_hamming_one(L, M, input);
+    bool *h_input;
+    long long int *h_hashes1,* h_hashes2;
+    read_input(argv[1], L, M, h_input);
 
-    delete[] input;
+
+    h_hashes1 = new long long int[M];
+    h_hashes2 = new long long int[M];
+    if (h_hashes1 == NULL || h_hashes2 == NULL) ERR("operator new");
+    memset(h_hashes1, 0, sizeof(long long int) * M);
+    memset(h_hashes2, 0, sizeof(long long int) * M);
+
+    calculate_hashes(h_hashes1, h_hashes2, h_input, L, M);
+    find_hamming_one(h_hashes1, h_hashes2, L, M);
+
     return EXIT_SUCCESS;
 }
