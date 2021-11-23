@@ -14,6 +14,7 @@
 #include <thrust/sort.h>
 using namespace std;
 
+#define SIZE_OF_FIFO_TXT (long long int)1e15
 #define MOD1 100000004917
 #define MOD2 99999981101
 #define P1 29
@@ -153,9 +154,11 @@ int main(int argc, char ** argv) {
     
     thrust::sort(thrust::device, d_hashes_map, d_hashes_map + M);
     
+    cudaDeviceSetLimit(cudaLimitPrintfFifoSize, SIZE_OF_FIFO_TXT);
     find_hamming_one<<<blocks, threads>>>(d_hashes_map, d_input, L, M);
-    cudaFree(d_input);
+    cudaDeviceSynchronize();
 
+    cudaFree(d_input);
     cudaFree(d_hashes_map);
     return EXIT_SUCCESS;
 }

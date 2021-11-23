@@ -8,6 +8,7 @@
 #include <cstring>
 using namespace std;
 
+#define SIZE_OF_FIFO_TXT (long long int)1e15
 #define BITS_IN_INT 31
 #define ERR(source) (fprintf(stderr,"%s:%d\n",__FILE__,__LINE__),\
                      perror(source),\
@@ -79,7 +80,10 @@ int main(int argc, char ** argv) {
     threads = 1024;
     blocks = _ceil((double)M / threads);
 
+
+    cudaDeviceSetLimit(cudaLimitPrintfFifoSize, SIZE_OF_FIFO_TXT);
     find_hamming_one<<<blocks, threads>>>(d_input, L, M);
+    cudaDeviceSynchronize();
 
     cudaFree(d_input);
     return EXIT_SUCCESS;

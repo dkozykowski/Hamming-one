@@ -9,8 +9,8 @@ hamming_one_gpu: hamming_one_gpu.cu
 hamming_one_optimised_gpu: hamming_one_optimised_gpu.cu
 	nvcc hamming_one_optimised_gpu.cu -o hamming_one_optimised_gpu
 
-generate_input: generate_input.cpp
-	g++ -Wall -o generate_input generate_input.cpp -std=gnu++0x
+generate_input: generate_input.cu
+	nvcc generate_input.cu -o generate_input
 
 test_solution: test_solution.cpp
 	g++ -Wall -o test_solution test_solution.cpp -std=gnu++0x

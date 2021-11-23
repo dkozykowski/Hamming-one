@@ -2,7 +2,7 @@ echo "Making solutions"
 make > /dev/null
 
 echo "Generating input"
-./generate_input input.txt 100000 1000
+./generate_input input.txt 1000 100000
 
 echo "Running CPU"
 CPU_START_TIME=$(date +%s%N | cut -b1-13)
