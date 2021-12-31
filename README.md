@@ -9,3 +9,11 @@ Given *n* binary sequences (0 &lt; n &le; 10<sup>5</sup>), each sequence of leng
 
 [Hamming distance](https://en.wikipedia.org/wiki/Hamming_distance) between two binary sequences of equal lenght equals the number of positions on which those sequences differ, e.g.:
 distance between 1101 and 1100 equals 1, and between 0011 and 1100 equals 4.
+
+## Solution
+
+The GPU algorithm in O(nl log n) explanation can be found in [HammingOneSolution](https://github.com/dkozykowski/Hamming-one/blob/master/HammingOneSolution.pdf) file.
+
+## Comparison
+
+TBA
