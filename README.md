@@ -14,6 +14,6 @@ distance between 1101 and 1100 equals 1, and between 0011 and 1100 equals 4.
 
 The GPU algorithm in O(nl log n) explanation can be found in [HammingOneSolution](https://github.com/dkozykowski/Hamming-one/blob/master/HammingOneSolution.pdf) file.
 
-## Comparison
+## How to run
 
-TBA
+In order to run the comparision tool use `./run`, which will run the script bulding binary files, generate input, run the GPU and CPU codes and print calculation time comparation.
